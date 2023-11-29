@@ -4,25 +4,28 @@ import java.util.stream.Collectors;
 
 public class Parser {
 
-    List<String[]> commands;
+    List<String[]> comandosList;
 
-    Parser (String input) {
+    // Construtor recebe o input e inicializa a lista de comandos
+    public Parser(String input) {
         final String eol = System.getProperty("line.separator");
-        var output = input.split(eol);
-        commands = Arrays.stream(output)
-        .map(String::strip)
-        .filter(  (s) ->  s.indexOf("//") != 0 && s != "")
-        .map ( (s) ->s.split(" ")  )
-        .collect(Collectors.toList());
 
+        // Split do input em linhas e mapeamento para arrays de palavras
+        comandosList = Arrays.stream(input.split(eol))
+                .map(String::strip)
+                .filter(s -> !s.isEmpty() && !s.startsWith("//"))
+                .map(s -> s.split("\\s+"))  // Usa expressão regular para tratar múltiplos espaços
+                .collect(Collectors.toList());
     }
 
-    public boolean hasMoreCommands () {
-        return commands.size() != 0;
+    // Verifica se ainda existem comandos para processar
+    public boolean temMaisComandos() {
+        return !comandosList.isEmpty();
     }
 
-    public Command nextCommand () {
-        return new Command(commands.remove(0));
+    // Obtém e remove o próximo comando da lista
+    public Command proximoComando() {
+        return new Command(comandosList.remove(0));
     }
-    
+
 }

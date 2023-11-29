@@ -3,26 +3,27 @@ import java.util.List;
 
 public class Command {
 
-    public enum Type {
-        ADD, 
+    public enum Tipos {
+        ADD,
         SUB,
         PUSH,
         POP;
     }
 
-    public Command.Type type;
+    public Tipos tipo;
     public List<String> args = new ArrayList<>();
 
-    public Command (String[] command) {
+    // Construtor que recebe um array de strings representando um comando
+    public Command(String[] command) {
+        // O primeiro elemento do array representa o tipo do comando (ADD, SUB, PUSH,
+        // POP)
+        tipo = Tipos.valueOf(command[0].toUpperCase());
 
-        type = Command.Type.valueOf(command[0].toUpperCase());
-
-        for (int i=1;i<command.length;i++){
-            var arg = command[i];
-            var pos = arg.indexOf("//");
-            if (pos != -1) arg = arg.substring(0, pos);
-            args.add(arg.strip());
-        } 
+        // Itera sobre os elementos restantes do array para obter os argumentos
+        for (int i = 1; i < command.length; i++) {
+            // Remove comentários e adiciona o argumento à lista
+            String arg = command[i].split("//")[0].strip();
+            args.add(arg);
+        }
     }
-    
 }
