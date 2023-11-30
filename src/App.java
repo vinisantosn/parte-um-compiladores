@@ -66,6 +66,27 @@ public class App {
                 case POP:
                     codigo.escreverPop(comando.args.get(0), Integer.parseInt(comando.args.get(1)));
                     break;
+                case NOT:
+                    codigo.escreverArithmeticNot();
+                    break;
+                case EQ:
+                    codigo.escreverArithmeticEq();
+                    break;
+                case LT:
+                    codigo.escreverArithmeticLt();
+                    break;
+                case GT:
+                    codigo.escreverArithmeticGt();
+                    break;
+                case AND:
+                    codigo.escreverArithmeticAnd();
+                    break;
+                case OR:
+                    codigo.escreverArithmeticOr();
+                    break;
+                case NEG:
+                    codigo.escreverArithmeticNeg();
+                    break;
                 default:
                     System.out.println("Comando " + "\"" + comando.tipo.toString() + "\"" + " não implementado.");
             }

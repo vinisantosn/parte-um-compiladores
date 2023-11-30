@@ -6,6 +6,7 @@ public class CodeWriter {
     private StringBuilder output = new StringBuilder();
     private String nomeModulo = "Main";
     private String nomeArquivoSaida;
+    private int contagemDeRotulos = 0;
 
     // Construtor que recebe o nome do arquivo de saída
     public CodeWriter(String nomeArquivo) {
@@ -111,6 +112,122 @@ public class CodeWriter {
         escrever("D=M");
         escrever("A=A-1");
         escrever("M=M-D");
+    }
+
+    void escreverArithmeticAnd() {
+        escreverComentario("and");
+        escrever("@SP");
+        escrever("AM=M-1");
+        escrever("D=M");
+        escrever("A=A-1");
+        escrever("M=D&M");
+    }
+
+    void escreverArithmeticOr() {
+        escrever("@SP // or");
+        escrever("AM=M-1");
+        escrever("D=M");
+        escrever("A=A-1");
+        escrever("M=D|M");
+    }
+
+    void escreverArithmeticNot() {
+
+        escrever("@SP // not");
+        escrever("A=M");
+        escrever("A=A-1");
+        escrever("M=!M");
+    }
+
+    void escreverArithmeticEq() {
+        String label = ("JEQ_" + nomeModulo + "_" + (contagemDeRotulos));
+        escrever("@SP // eq");
+        escrever("AM=M-1");
+        escrever("D=M");
+        escrever("@SP");
+        escrever("AM=M-1");
+        escrever("D=M-D");
+        escrever("@" + label);
+        escrever("D;JEQ");
+        escrever("D=1");
+        escrever("(" + label + ")");
+        escrever("D=D-1");
+        escrever("@SP");
+        escrever("A=M");
+        escrever("M=D");
+        escrever("@SP");
+        escrever("M=M+1");
+
+        contagemDeRotulos++;
+    }
+
+    void escreverArithmeticGt() {
+        String labelTrue = ("JGT_TRUE_" + nomeModulo + "_" + (contagemDeRotulos));
+        String labelFalse = ("JGT_FALSE_" + nomeModulo + "_" + (contagemDeRotulos));
+
+        escrever("@SP // gt");
+        escrever("AM=M-1");
+        escrever("D=M");
+        escrever("@SP");
+        escrever("AM=M-1");
+        escrever("D=M-D");
+        escrever("@" + labelTrue);
+        escrever("D;JGT");
+        escrever("D=0");
+        escrever("@" + labelFalse);
+        escrever("0;JMP");
+        escrever("(" + labelTrue + ")");
+        escrever("D=-1");
+        escrever("(" + labelFalse + ")");
+        escrever("@SP");
+        escrever("A=M");
+        escrever("M=D");
+        escrever("@SP");
+        escrever("M=M+1");
+
+        contagemDeRotulos++;
+    }
+
+    void escreverArithmeticLt() {
+        String labelTrue = ("JLT_TRUE_" + nomeModulo + "_" + (contagemDeRotulos));
+        String labelFalse = ("JLT_FALSE_" + nomeModulo + "_" + (contagemDeRotulos));
+
+        escrever("@SP // lt");
+        escrever("AM=M-1");
+        escrever("D=M");
+        escrever("@SP");
+        escrever("AM=M-1");
+        escrever("D=M-D");
+        escrever("@" + labelTrue);
+        escrever("D;JLT");
+        escrever("D=0");
+        escrever("@" + labelFalse);
+        escrever("0;JMP");
+        escrever("(" + labelTrue + ")");
+        escrever("D=-1");
+        escrever("(" + labelFalse + ")");
+        escrever("@SP");
+        escrever("A=M");
+        escrever("M=D");
+        escrever("@SP");
+        escrever("M=M+1");
+
+        contagemDeRotulos++;
+    }
+    void escreverArithmeticNeg() {
+       escrever("@SP // neg");
+       escrever("A=M");
+       escrever("A=A-1");
+       escrever("M=-M");
+    }
+
+    void  escreverLabel(String label ) {
+        escrever("(" + label + ")");
+    }
+    
+    void  escreverGoto(String label) {
+        escrever("@" + label);
+        escrever("0;JMP");
     }
 
     // Escreve a string no arquivo de saída

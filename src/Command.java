@@ -7,7 +7,14 @@ public class Command {
         ADD,
         SUB,
         PUSH,
-        POP;
+        POP,
+        NOT,
+        EQ,
+        LT,
+        GT,
+        AND,
+        OR,
+        NEG;
     }
 
     public Tipos tipo;
