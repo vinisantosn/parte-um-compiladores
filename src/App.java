@@ -55,19 +55,19 @@ public class App {
             // Executa a ação correspondente ao tipo de comando
             switch (comando.tipo) {
                 case ADD:
-                    codigo.writeArithmeticAdd();
+                    codigo.escreverAritmeticaAdicao();
                     break;
                 case SUB:
-                    codigo.writeArithmeticSub();
+                    codigo.escreverAritmeticaSubtracao();
                     break;
                 case PUSH:
-                    codigo.writePush(comando.args.get(0), Integer.parseInt(comando.args.get(1)));
+                    codigo.escreverPush(comando.args.get(0), Integer.parseInt(comando.args.get(1)));
                     break;
                 case POP:
-                    codigo.writePop(comando.args.get(0), Integer.parseInt(comando.args.get(1)));
+                    codigo.escreverPop(comando.args.get(0), Integer.parseInt(comando.args.get(1)));
                     break;
                 default:
-                    System.out.println("Comando "+"\"" +comando.tipo.toString() + "\"" + " não implementado.");
+                    System.out.println("Comando " + "\"" + comando.tipo.toString() + "\"" + " não implementado.");
             }
         }
     }
@@ -105,7 +105,7 @@ public class App {
             traduzirArquivo(arquivo, codigo);
 
             // Salva o código gerado no arquivo de saída
-            codigo.save();
+            codigo.salvar();
         }
 
     }

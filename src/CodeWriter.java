@@ -1,135 +1,137 @@
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class CodeWriter {
 
     private StringBuilder output = new StringBuilder();
-    private String moduleName = "Main";
-    private String outputFileName;
+    private String nomeModulo = "Main";
+    private String nomeArquivoSaida;
 
-    public CodeWriter(String fname) {
-        outputFileName = fname;
+    // Construtor que recebe o nome do arquivo de saída
+    public CodeWriter(String nomeArquivo) {
+        nomeArquivoSaida = nomeArquivo;
     }
 
-    void setFileName(String s) {
-        moduleName = s.substring(0, s.indexOf("."));
-        moduleName = moduleName.substring(s.lastIndexOf("/") + 1);
-        System.out.println(moduleName);
+    // Define o nome do módulo com base no nome do arquivo
+    void definirNomeArquivo(String nomeArquivo) {
+        nomeModulo = nomeArquivo.substring(nomeArquivo.lastIndexOf("/") + 1);
+        System.out.println(nomeModulo);
     }
 
-    String registerName(String segment, int index) {
-
-        if (segment.equals("local"))
-            return "LCL";
-        if (segment.equals("argument"))
-            return "ARG";
-        if (segment.equals("this"))
-            return "THIS";
-        if (segment.equals("that"))
-            return "THAT";
-        if (segment.equals("pointer"))
-            return "R" + (3 + index);
-        if (segment.equals("temp"))
-            return "R" + (5 + index);
-
-        return moduleName + "." + index;
-    }    
-
-    void writePush(String seg, int index) {
-        if (seg.equals("constant")) {
-            write("@" + index + " // push " + seg + " " + index);
-            write("D=A");
-            write("@SP");
-            write("A=M");
-            write("M=D");
-            write("@SP");
-            write("M=M+1");
-        } else if (seg.equals("static") || seg.equals("temp") || seg.equals("pointer")) {
-            write("@" + registerName(seg, index) + " // push " + seg + " " + index);
-            write("D=M");
-            write("@SP");
-            write("A=M");
-            write("M=D");
-            write("@SP");
-            write("M=M+1");
-        }
-
-        else {
-            write("@" + registerName(seg, 0) + " // push " + seg + " " + index);
-            write("D=M");
-            write("@" + index);
-            write("A=D+A");
-            write("D=M");
-            write("@SP");
-            write("A=M");
-            write("M=D");
-            write("@SP");
-            write("M=M+1");
+    // Gera o nome do registrador com base no segmento e índice
+    String nomeRegistrador(String segmento, int indice) {
+        switch (segmento) {
+            case "local":
+                return "LCL";
+            case "argument":
+                return "ARG";
+            case "this":
+                return "THIS";
+            case "that":
+                return "THAT";
+            case "pointer":
+                return "R" + (3 + indice);
+            case "temp":
+                return "R" + (5 + indice);
+            default:
+                return nomeModulo + "." + indice;
         }
     }
 
-    void writePop(String seg, int index) {
-        if (seg.equals("static") || seg.equals("temp") || seg.equals("pointer")) {
-
-            write("@SP // pop " + seg + " " + index);
-            write("M=M-1");
-            write("A=M");
-            write("D=M");
-            write("@" + registerName(seg, index));
-            write("M=D");
+    // Escreve o comando push no arquivo de saída
+    void escreverPush(String segmento, int indice) {
+        if ("constant".equals(segmento)) {
+            escreverComentario("push " + segmento + " " + indice);
+            escrever("@" + indice);
+            escrever("D=A");
+        } else if ("static".equals(segmento) || "temp".equals(segmento) || "pointer".equals(segmento)) {
+            escreverComentario("push " + segmento + " " + indice);
+            escrever("@" + nomeRegistrador(segmento, indice));
+            escrever("D=M");
         } else {
-            write("@" + registerName(seg, 0) + " // pop " + seg + " " + index);
-            write("D=M");
-            write("@" + index);
-            write("D=D+A");
-            write("@R13");
-            write("M=D");
-            write("@SP");
-            write("M=M-1");
-            write("A=M");
-            write("D=M");
-            write("@R13");
-            write("A=M");
-            write("M=D");
+            escreverComentario("push " + segmento + " " + indice);
+            escrever("@" + nomeRegistrador(segmento, 0));
+            escrever("D=M");
+            escrever("@" + indice);
+            escrever("A=D+A");
+            escrever("D=M");
+        }
+        escrever("@SP");
+        escrever("A=M");
+        escrever("M=D");
+        escrever("@SP");
+        escrever("M=M+1");
+    }
+
+    // Escreve o comando pop no arquivo de saída
+    void escreverPop(String segmento, int indice) {
+        if ("static".equals(segmento) || "temp".equals(segmento) || "pointer".equals(segmento)) {
+            escreverComentario("pop " + segmento + " " + indice);
+            escrever("@SP");
+            escrever("M=M-1");
+            escrever("A=M");
+            escrever("D=M");
+            escrever("@" + nomeRegistrador(segmento, indice));
+            escrever("M=D");
+        } else {
+            escreverComentario("pop " + segmento + " " + indice);
+            escrever("@" + nomeRegistrador(segmento, 0));
+            escrever("D=M");
+            escrever("@" + indice);
+            escrever("D=D+A");
+            escrever("@R13");
+            escrever("M=D");
+            escrever("@SP");
+            escrever("M=M-1");
+            escrever("A=M");
+            escrever("D=M");
+            escrever("@R13");
+            escrever("A=M");
+            escrever("M=D");
         }
     }
 
-    void writeArithmeticAdd() {
-        write("@SP // add");
-        write("M=M-1");
-        write("A=M");
-        write("D=M");
-        write("A=A-1");
-        write("M=D+M");
+    // Escreve o comando de adição no arquivo de saída
+    void escreverAritmeticaAdicao() {
+        escreverComentario("add");
+        escrever("@SP");
+        escrever("M=M-1");
+        escrever("A=M");
+        escrever("D=M");
+        escrever("A=A-1");
+        escrever("M=D+M");
     }
 
-    void writeArithmeticSub() {
-        write("@SP // sub");
-        write("M=M-1");
-        write("A=M");
-        write("D=M");
-        write("A=A-1");
-        write("M=M-D");
+    // Escreve o comando de subtração no arquivo de saída
+    void escreverAritmeticaSubtracao() {
+        escreverComentario("sub");
+        escrever("@SP");
+        escrever("M=M-1");
+        escrever("A=M");
+        escrever("D=M");
+        escrever("A=A-1");
+        escrever("M=M-D");
     }
 
-    private void write(String s) {
+    // Escreve a string no arquivo de saída
+    private void escrever(String s) {
         output.append(String.format("%s\n", s));
     }
 
-    public String codeOutput() {
+    // Escreve um comentário no arquivo de saída
+    private void escreverComentario(String comentario) {
+        escrever(String.format("// %s", comentario));
+    }
+
+    // Retorna o código gerado como uma string
+    public String codigoGerado() {
         return output.toString();
     }
 
-    public void save() {
-
-        FileOutputStream outputStream;
-        try {
-            outputStream = new FileOutputStream(outputFileName);
-            outputStream.write(output.toString().getBytes());
-            outputStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+    // Salva o código gerado no arquivo de saída
+    public void salvar() {
+        try (FileWriter escritor = new FileWriter(nomeArquivoSaida)) {
+            escritor.write(output.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
