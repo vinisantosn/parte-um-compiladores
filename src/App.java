@@ -55,10 +55,10 @@ public class App {
             // Executa a ação correspondente ao tipo de comando
             switch (comando.tipo) {
                 case ADD:
-                    codigo.escreverAritmeticaAdicao();
+                    codigo.escreverAdicao();
                     break;
                 case SUB:
-                    codigo.escreverAritmeticaSubtracao();
+                    codigo.escreverSubtracao();
                     break;
                 case PUSH:
                     codigo.escreverPush(comando.args.get(0), Integer.parseInt(comando.args.get(1)));
@@ -67,26 +67,49 @@ public class App {
                     codigo.escreverPop(comando.args.get(0), Integer.parseInt(comando.args.get(1)));
                     break;
                 case NOT:
-                    codigo.escreverArithmeticNot();
+                    codigo.escreverNot();
                     break;
                 case EQ:
-                    codigo.escreverArithmeticEq();
+                    codigo.escreverEq();
                     break;
                 case LT:
-                    codigo.escreverArithmeticLt();
+                    codigo.escreverLt();
                     break;
                 case GT:
-                    codigo.escreverArithmeticGt();
+                    codigo.escreverGt();
                     break;
                 case AND:
-                    codigo.escreverArithmeticAnd();
+                    codigo.escreverAnd();
                     break;
                 case OR:
-                    codigo.escreverArithmeticOr();
+                    codigo.escreverOr();
                     break;
                 case NEG:
-                    codigo.escreverArithmeticNeg();
+                    codigo.escreverNeg();
                     break;
+                case GOTO:
+                    codigo.escreverGoto(comando.args.get(0));
+                    break;
+                
+                case IF:
+                        codigo.escreverIf(comando.args.get(0));
+                        break;
+
+                case LABEL:
+                        codigo.escreverLabel(comando.args.get(0));
+                        break;
+                    
+                case RETURN:
+                        codigo.escreverReturn();
+                        break;
+
+                case CALL:
+                        codigo.escreverCall(comando.args.get(0), Integer.parseInt(comando.args.get(1)));
+                        break;
+
+                case FUNCTION:
+                        codigo.escreverFunction(comando.args.get(0), Integer.parseInt(comando.args.get(1)));
+                        break;
                 default:
                     System.out.println("Comando " + "\"" + comando.tipo.toString() + "\"" + " não implementado.");
             }

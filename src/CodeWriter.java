@@ -7,6 +7,7 @@ public class CodeWriter {
     private String nomeModulo = "Main";
     private String nomeArquivoSaida;
     private int contagemDeRotulos = 0;
+    private int contagemDeChamadas = 0;
 
     // Construtor que recebe o nome do arquivo de saída
     public CodeWriter(String nomeArquivo) {
@@ -93,7 +94,7 @@ public class CodeWriter {
     }
 
     // Escreve o comando de adição no arquivo de saída
-    void escreverAritmeticaAdicao() {
+    void escreverAdicao() {
         escreverComentario("add");
         escrever("@SP");
         escrever("M=M-1");
@@ -104,7 +105,7 @@ public class CodeWriter {
     }
 
     // Escreve o comando de subtração no arquivo de saída
-    void escreverAritmeticaSubtracao() {
+    void escreverSubtracao() {
         escreverComentario("sub");
         escrever("@SP");
         escrever("M=M-1");
@@ -114,7 +115,8 @@ public class CodeWriter {
         escrever("M=M-D");
     }
 
-    void escreverArithmeticAnd() {
+    // Implementação otimizada do comando and
+    void escreverAnd() {
         escreverComentario("and");
         escrever("@SP");
         escrever("AM=M-1");
@@ -123,112 +125,203 @@ public class CodeWriter {
         escrever("M=D&M");
     }
 
-    void escreverArithmeticOr() {
-        escrever("@SP // or");
+    // Implementação otimizada do comando or
+    void escreverOr() {
+        escreverComentario("or");
+        escrever("@SP");
         escrever("AM=M-1");
         escrever("D=M");
         escrever("A=A-1");
         escrever("M=D|M");
     }
 
-    void escreverArithmeticNot() {
-
-        escrever("@SP // not");
+    // Implementação otimizada do comando not
+    void escreverNot() {
+        escreverComentario("not");
+        escrever("@SP");
         escrever("A=M");
         escrever("A=A-1");
         escrever("M=!M");
     }
 
-    void escreverArithmeticEq() {
-        String label = ("JEQ_" + nomeModulo + "_" + (contagemDeRotulos));
-        escrever("@SP // eq");
-        escrever("AM=M-1");
-        escrever("D=M");
+    // Implementação otimizada do comando neg
+    void escreverNeg() {
+        escreverComentario("neg");
         escrever("@SP");
-        escrever("AM=M-1");
-        escrever("D=M-D");
+        escrever("A=M");
+        escrever("A=A-1");
+        escrever("M=-M");
+    }
+
+    // Implementação otimizada do comando eq (igual)
+    void escreverEq() {
+        escreverComparacao("JEQ");
+    }
+
+    // Implementação otimizada do comando gt (maior que)
+    void escreverGt() {
+        escreverComparacao("JGT");
+    }
+
+    // Implementação otimizada do comando lt (menor que)
+    void escreverLt() {
+        escreverComparacao("JLT");
+    }
+
+    // Implementação otimizada para comandos de comparação
+    void escreverComparacao(String condicao) {
+        String labelTrue = condicao + "_TRUE_" + nomeModulo + "_" + (contagemDeRotulos);
+        String labelFalse = condicao + "_FALSE_" + nomeModulo + "_" + (contagemDeRotulos);
+
+        escrever("@" + labelTrue);
+        escrever("D;" + condicao);
+        escrever("D=0");
+        escrever("@" + labelFalse);
+        escrever("0;JMP");
+        escrever("(" + labelTrue + ")");
+        escrever("D=-1");
+        escrever("(" + labelFalse + ")");
+        escreverPushD();
+
+        contagemDeRotulos++;
+    }
+
+    // Implementação do comando de label
+    void escreverLabel(String label) {
+        escrever("(" + label + ")");
+    }
+
+    // Implementação do comando de goto
+    void escreverGoto(String label) {
         escrever("@" + label);
-        escrever("D;JEQ");
-        escrever("D=1");
-        escrever("(" + label + ")");
-        escrever("D=D-1");
-        escrever("@SP");
-        escrever("A=M");
-        escrever("M=D");
-        escrever("@SP");
-        escrever("M=M+1");
-
-        contagemDeRotulos++;
-    }
-
-    void escreverArithmeticGt() {
-        String labelTrue = ("JGT_TRUE_" + nomeModulo + "_" + (contagemDeRotulos));
-        String labelFalse = ("JGT_FALSE_" + nomeModulo + "_" + (contagemDeRotulos));
-
-        escrever("@SP // gt");
-        escrever("AM=M-1");
-        escrever("D=M");
-        escrever("@SP");
-        escrever("AM=M-1");
-        escrever("D=M-D");
-        escrever("@" + labelTrue);
-        escrever("D;JGT");
-        escrever("D=0");
-        escrever("@" + labelFalse);
         escrever("0;JMP");
-        escrever("(" + labelTrue + ")");
-        escrever("D=-1");
-        escrever("(" + labelFalse + ")");
+    }
+
+    // Implementação auxiliar para empilhar o valor de D
+    private void escreverPushD() {
         escrever("@SP");
         escrever("A=M");
         escrever("M=D");
         escrever("@SP");
         escrever("M=M+1");
-
-        contagemDeRotulos++;
     }
 
-    void escreverArithmeticLt() {
-        String labelTrue = ("JLT_TRUE_" + nomeModulo + "_" + (contagemDeRotulos));
-        String labelFalse = ("JLT_FALSE_" + nomeModulo + "_" + (contagemDeRotulos));
-
-        escrever("@SP // lt");
-        escrever("AM=M-1");
+    void escreverFramePush(String value) {
+        escrever("@" + value);
         escrever("D=M");
-        escrever("@SP");
-        escrever("AM=M-1");
-        escrever("D=M-D");
-        escrever("@" + labelTrue);
-        escrever("D;JLT");
-        escrever("D=0");
-        escrever("@" + labelFalse);
-        escrever("0;JMP");
-        escrever("(" + labelTrue + ")");
-        escrever("D=-1");
-        escrever("(" + labelFalse + ")");
-        escrever("@SP");
-        escrever("A=M");
-        escrever("M=D");
-        escrever("@SP");
-        escrever("M=M+1");
-
-        contagemDeRotulos++;
-    }
-    void escreverArithmeticNeg() {
-       escrever("@SP // neg");
-       escrever("A=M");
-       escrever("A=A-1");
-       escrever("M=-M");
-    }
-
-    void  escreverLabel(String label ) {
-        escrever("(" + label + ")");
+        escreverPushD();
     }
     
-    void  escreverGoto(String label) {
+    public void escreverInit() {
+        // escrever("@256");
+        // escrever("D=A");
+        // escrever("@SP");
+        // escrever("M=D");
+        // escreverCall("Sys.init", 0);
+    }
+    
+    void escreverIf(String label) {
+        escrever("@SP");
+        escrever("AM=M-1");
+        escrever("D=M");
+        escrever("M=0");
         escrever("@" + label);
+        escrever("D;JNE");
+    }
+    
+    void escreverFunction(String funcName, int nLocals) {
+        String loopLabel = funcName + "_INIT_LOCALS_LOOP";
+        String loopEndLabel = funcName + "_INIT_LOCALS_END";
+    
+        escrever("(" + funcName + ")");
+        escrever("@" + nLocals);
+        escrever("D=A");
+        escrever("@R13");
+        escrever("M=D");
+        escrever("(" + loopLabel + ")");
+        escrever("@" + loopEndLabel);
+        escrever("D;JEQ");
+        escrever("@0");
+        escrever("D=A");
+        escrever("@SP");
+        escrever("A=M");
+        escrever("M=D");
+        escrever("@SP");
+        escrever("M=M+1");
+        escrever("@R13");
+        escrever("MD=M-1");
+        escrever("@" + loopLabel);
+        escrever("0;JMP");
+        escrever("(" + loopEndLabel + ")");
+    }
+    
+    void escreverCall(String funcName, int numArgs) {
+        String returnAddr = funcName + "_RETURN_" + contagemDeChamadas;
+    
+        escrever("@" + returnAddr);
+        escrever("D=A");
+        escrever("@SP");
+        escrever("A=M");
+        escrever("M=D");
+        escrever("@SP");
+        escrever("M=M+1");
+        escreverFramePush("LCL");
+        escreverFramePush("ARG");
+        escreverFramePush("THIS");
+        escreverFramePush("THAT");
+        escrever("@" + numArgs);
+        escrever("D=A");
+        escrever("@5");
+        escrever("D=D+A");
+        escrever("@SP");
+        escrever("D=M-D");
+        escrever("@ARG");
+        escrever("M=D");
+        escrever("@SP");
+        escrever("D=M");
+        escrever("@LCL");
+        escrever("M=D");
+        escreverGoto(funcName);
+        escrever("(" + returnAddr + ")");
+        contagemDeChamadas++;
+    }
+    
+    void escreverReturn() {
+        escrever("@LCL");
+        escrever("D=M");
+        escrever("@R13");
+        escrever("M=D");
+        escrever("@5");
+        escrever("A=D-A");
+        escrever("D=M");
+        escrever("@R14");
+        escrever("M=D");
+        escrever("@SP");
+        escrever("AM=M-1");
+        escrever("D=M");
+        escrever("@ARG");
+        escrever("A=M");
+        escrever("M=D");
+        escrever("D=A+1");
+        escrever("@SP");
+        escrever("M=D");
+        escreverFramePop("THAT");
+        escreverFramePop("THIS");
+        escreverFramePop("ARG");
+        escreverFramePop("LCL");
+        escrever("@R14");
+        escrever("A=M");
         escrever("0;JMP");
     }
+    
+    void escreverFramePop(String value) {
+        escrever("@R13");
+        escrever("AM=M-1");
+        escrever("D=M");
+        escrever("@" + value);
+        escrever("M=D");
+    }
+    
 
     // Escreve a string no arquivo de saída
     private void escrever(String s) {

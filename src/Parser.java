@@ -13,8 +13,8 @@ public class Parser {
         // Split do input em linhas e mapeamento para arrays de palavras
         comandosList = Arrays.stream(input.split(eol))
                 .map(String::strip)
-                .filter(s -> !s.isEmpty() && !s.startsWith("//"))
-                .map(s -> s.split("\\s+"))  // Usa expressão regular para tratar múltiplos espaços
+                .filter(s -> s != "" && !s.startsWith("//"))
+                .map(s -> s.split("\\s+")) // Usa expressão regular para tratar múltiplos espaços
                 .collect(Collectors.toList());
     }
 
