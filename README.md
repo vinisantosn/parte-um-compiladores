@@ -1,3 +1,4 @@
+# Assista o vídeo de teste no [Youtube](https://youtu.be/YfA1qRXQUNs)
 ## Getting Started
 
 Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
